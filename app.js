@@ -9,7 +9,7 @@ const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pelle
 const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
 
 const app = express();
-
+const posts = [];
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -17,7 +17,10 @@ app.use(express.static("public"));
 
 /// ROUTS
 app.get("/", (req,res)=>{
-  res.render('home',{startContent:homeStartingContent});
+  res.render('home',{
+    startContent:homeStartingContent,
+    posts: posts
+  });
 });
 app.get("/about", (req,res)=>{
   res.render('about',{aboutContent:aboutContent});
@@ -29,7 +32,20 @@ app.get("/contact", (req,res)=>{
 app.get("/compose", (req,res)=>{
   res.render('compose');
 });
+app.post('/compose', (req,res)=>{
+  //console.log(req.body.postTitile);
+  let post = {
+    title: req.body.postTitile,
+    content: req.body.postBody
+  }
+  posts.push(post);
+  res.redirect('/');
+  //console.log(post);
+});
 
+app.get('/posts/:postName', (req, res)=>{
+  console.log(req.params.postName);
+});
 
 
 
