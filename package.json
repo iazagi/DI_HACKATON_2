@@ -11,9 +11,16 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "dotenv": "^16.0.0",
     "ejs": "^2.6.1",
     "express": "^4.16.3",
-    "lodash": "^4.17.11",
+    "knex": "^2.0.0",
+    "lodash": "^4.17.21",
+    "mongoose": "^6.3.3",
+    "pg": "^8.7.3",
+    "postgres": "^3.1.0"
+  },
+  "devDependencies": {
     "nodemon": "^2.0.16"
   }
 }
