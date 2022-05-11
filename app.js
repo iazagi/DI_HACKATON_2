@@ -4,8 +4,8 @@ const ejs = require("ejs");
 const _ = require('lodash');
 const dotenv =require('dotenv');
 //const knex = require('knex');
-//const {} = require('./modules/journal_db.js');
-const DB = require('./modules/journal_db.js');
+const mongoose = require('mongoose');
+//const DB = require('./modules/journal_db.js');
 dotenv.config();
 
 
@@ -15,32 +15,40 @@ const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pelle
 const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
 
 const app = express();
-const posts = [];
+//const posts = [];
 app.set('view engine', 'ejs');
 dotenv.config();
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
+mongoose.connect("mongodb://localhost:27017/blogDB", {useNewUrlParser: true});
 
+const postSchema ={
+  title: String,
+  content: String
+};
+const Post = mongoose.model("Post", postSchema);
 /// ROUTS
 app.get("/", (req,res)=>{
- res.render('home',{
-   startContent:homeStartingContent,
-   posts: posts
+  Post.find({},(req,res)=>{
+      res.render('home',{
+      startContent:homeStartingContent,
+      posts: posts
+    });
  });
 });
-app.get('/api/journal_db',(req,res)=>{
-  getAllJournal()
-  .then(
-    res.render('home',{
-        startContent:homeStartingContent,
-       posts: posts
-    })
-    .catch(err =>{
-      console.log(err);
-    })
-  )
-});
-
+// app.get('/api/journal_db4
+// ',(req,res)=>{
+//   getAllJournal()
+//   .then(
+//     res.render('home',{
+//         startContent:homeStartingContent,
+//        posts: posts
+//     })
+//     .catch(err =>{
+//       console.log(err);
+//     })
+//   )
+// });
 
 app.get("/about", (req,res)=>{
   res.render('about',{aboutContent:aboutContent});
@@ -64,34 +72,34 @@ app.post('/api/journal_db',(req,res)=>{
 })
 app.post('/compose', (req,res)=>{
   //console.log(req.body.postTitile);
-  let post = {
+  const post = new Post({
     title: req.body.postTitle,
     content: req.body.postBody
-  }
-  posts.push(post);
-  res.redirect('/');
-  //console.log(post);
+  });
+
+  post.save((err)=>{
+    if(!err){
+      res.redirect('/');
+    }
+  });
 });
 
 app.get('/post/:postTitle', (req, res)=>{
   const request = _.lowerCase(req.params.postTitle);
-  res.render('post');
-  posts.forEach((post) => {
-    const storedTitle =  _.lowerCase(post.title);
-    if(storedTitle === request){
-      res.render('post', {
-         title : post.title,
-         content : post.content
-      });
-
-
-    };
+  post.findOne({_id: requestedPostId}, (req,res)=>{
+    res.render('post');
+    posts.forEach((post) => {
+      const storedTitle =  _.lowerCase(post.title);
+      if(storedTitle === request){
+        res.render('post', {
+           title : post.title,
+           content : post.content
+        });
+      }
+    });
   });
 
 });
-
-
-console.log(DB.getAllJournal);
 
 
 
